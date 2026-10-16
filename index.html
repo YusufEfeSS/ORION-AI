@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ORION AI</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07040f">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ORION">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#07040f;--p1:#0f0a1c;--p2:#171028;--line:#2b1e4d;--n:#b04dff;--n2:#d9a2ff;--t:#ece6fa;--m:#8f84ad;--err:#ff6b8a}
@@ -386,11 +393,12 @@ async function send(){
     }
     if(!m.text&&!m.imgs.length)throw new Error('Boş yanıt döndü (içerik filtrelenmiş olabilir).');
   }catch(e){
-    if(e.name!=='AbortError'){if(/fetch|network/i.test(e.message))e.message='Google sunucusuna bağlanılamadı. Dosyayı Chrome/Safari gibi gerçek bir tarayıcıda aç (Claude içindeki önizlemede internet erişimi kapalıdır) ve bağlantını kontrol et.';m.text+=(m.text?'\n\n':'')+'Hata: '+e.message+(/API key|API_KEY/i.test(e.message)?' — 🔑 simgesinden anahtarını güncelle.':'');m.err=1}
+    if(e.name!=='AbortError'){if(/fetch|network/i.test(e.message))e.message='Google sunucusuna bağlanılamadı. Dosyayı Chrome/Safari gibi gerçek bir tarayıcıda aç (Claude içindeki önizlemede internet erişimi kapalıdır) ve bağlantını kontrol et.';m.text+=(m.text?'\n\n':'')+'Hata: '+e.message+(/API key|API_KEY/i.test(e.message)?' — Koddaki SITE_KEY değerini geçerli bir Gemini API anahtarıyla değiştir.':'');m.err=1}
     else if(!m.text){m.text='Yanıt durduruldu.'}
   }
   busy=false;$('send').innerHTML=SEND_I;saveChats();render();
 }
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 route();
 </script>
 </body>
