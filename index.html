@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ORION AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07040f;--p1:#0f0a1c;--p2:#171028;--line:#2b1e4d;--n:#b04dff;--n2:#d9a2ff;--t:#ece6fa;--m:#8f84ad;--err:#ff6b8a}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:radial-gradient(900px 500px at 70% -10%,#2a0f55 0,transparent 60%),var(--bg);color:var(--t);font:15px/1.6 Sora,system-ui,sans-serif;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--n2);outline-offset:2px}
+.hide{display:none!important}
+.orb{width:var(--s,72px);height:var(--s,72px);border-radius:50%;box-shadow:0 0 40px rgba(176,77,255,.8),0 0 90px rgba(176,77,255,.4);animation:pulse 3.2s ease-in-out infinite;flex:none}
+@keyframes pulse{50%{box-shadow:0 0 60px rgba(176,77,255,1),0 0 130px rgba(176,77,255,.55)}}
+@media(prefers-reduced-motion:reduce){.orb{animation:none}}
+.center{height:100%;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.card{width:100%;max-width:400px;background:rgba(15,10,28,.85);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:0 0 50px rgba(120,40,220,.25);text-align:center;backdrop-filter:blur(8px)}
+.card h1{font-size:26px;margin:18px 0 4px;letter-spacing:.04em;text-shadow:0 0 18px var(--n)}
+.card p{color:var(--m);font-size:14px;margin-bottom:18px}
+.in{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.in:focus{border-color:var(--n);box-shadow:0 0 0 3px rgba(176,77,255,.25);outline:0}
+.btn{width:100%;padding:12px;border-radius:12px;background:linear-gradient(135deg,#8b2ff0,var(--n));font-weight:600;box-shadow:0 0 22px rgba(176,77,255,.5)}
+.btn:hover{filter:brightness(1.15)}
+.link{color:var(--n2);font-size:14px;margin-top:14px;display:inline-block}
+.err{color:var(--err);font-size:13px;min-height:18px;margin-bottom:6px}
+.tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--bg);padding:4px;border-radius:12px}
+.tabs button{flex:1;padding:9px;border-radius:9px;color:var(--m)}
+.tabs button.on{background:var(--p2);color:var(--t);box-shadow:0 0 12px rgba(176,77,255,.35)}
+/* app */
+.app{height:100%;display:grid;grid-template-columns:290px 1fr}
+.side{background:var(--p1);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.brand{display:flex;align-items:center;gap:12px;padding:18px 16px;font-weight:700;letter-spacing:.06em;font-size:18px;text-shadow:0 0 14px var(--n)}
+.side .newc{margin:0 14px 10px;padding:11px;border-radius:12px;border:1px solid var(--n);color:var(--n2);box-shadow:0 0 14px rgba(176,77,255,.3) inset}
+.side .newc:hover{background:rgba(176,77,255,.15)}
+.search{margin:0 14px 8px;padding:9px 12px;font-size:13px}
+.hist{flex:1;overflow:auto;padding:4px 10px}
+.h{display:flex;align-items:center;gap:6px;padding:9px 10px;border-radius:10px;color:var(--m);cursor:pointer;font-size:14px}
+.h span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h:hover{background:var(--p2)}
+.h.on{background:var(--p2);color:var(--t);box-shadow:inset 3px 0 var(--n)}
+.h button{color:var(--m);padding:2px 6px;border-radius:6px}
+.h button:hover{color:var(--err)}
+.empty-h{color:var(--m);font-size:13px;padding:10px}
+.user{border-top:1px solid var(--line);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d1fd0,var(--n));display:grid;place-items:center;font-weight:700;flex:none}
+.user div.nm{flex:1;min-width:0;font-size:13px}
+.user b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user small{color:var(--m)}
+.ic{padding:7px;border-radius:8px;color:var(--m)}
+.ic:hover{color:var(--n2);background:var(--p2)}
+.main{display:flex;flex-direction:column;min-height:0;min-width:0}
+.top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);padding-top:max(12px,env(safe-area-inset-top))}
+.top .menu{display:none}
+.top select{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:7px 10px;margin-left:auto;font-size:13px}
+.msgs{flex:1;overflow:auto;padding:20px 16px}
+.wrap{max-width:780px;margin:0 auto}
+.welcome{text-align:center;padding-top:6vh}
+.welcome h2{font-size:26px;margin:22px 0 6px;text-shadow:0 0 18px var(--n)}
+.welcome p{color:var(--m)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.chips button{background:var(--p1);border:1px solid var(--line);padding:9px 14px;border-radius:999px;font-size:13px}
+.chips button:hover{border-color:var(--n);box-shadow:0 0 14px rgba(176,77,255,.4)}
+.msg{display:flex;gap:12px;margin-bottom:20px}
+.msg.user{flex-direction:row-reverse}
+.msg .orb{--s:30px;margin-top:2px;animation:none;box-shadow:0 0 14px var(--n)}
+.bub{max-width:88%;padding:11px 15px;border-radius:16px;overflow-wrap:anywhere}
+.user .bub{background:linear-gradient(135deg,#5b1fb5,#8b2ff0);border-bottom-right-radius:4px}
+.model .bub{background:var(--p1);border:1px solid var(--line);border-bottom-left-radius:4px}
+.bub.err{border-color:var(--err)}
+.bub pre{background:#05030b;border:1px solid var(--line);border-radius:10px;padding:12px;overflow-x:auto;margin:8px 0;font-size:13px;line-height:1.5}
+.bub code{font-family:ui-monospace,Menlo,monospace;font-size:.9em}
+.bub :not(pre)>code{background:#05030b;padding:1px 6px;border-radius:6px;color:var(--n2)}
+.bub ul{padding-left:20px;margin:6px 0}
+.imgs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.imgs img{max-width:160px;max-height:160px;border-radius:10px;border:1px solid var(--line)}
+.dots:after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--n);box-shadow:0 0 10px var(--n);animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.2}}
+.comp{padding:10px 16px max(14px,env(safe-area-inset-bottom))}
+.box{max-width:780px;margin:0 auto;background:var(--p1);border:1px solid var(--line);border-radius:18px;padding:8px}
+.box:focus-within{border-color:var(--n);box-shadow:0 0 22px rgba(176,77,255,.35)}
+.prev{display:flex;gap:8px;flex-wrap:wrap;padding:4px 4px 8px}
+.prev div{position:relative}
+.prev img{width:62px;height:62px;object-fit:cover;border-radius:10px;border:1px solid var(--n)}
+.prev button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--err);font-size:12px;line-height:20px}
+.row{display:flex;align-items:flex-end;gap:4px}
+.row textarea{flex:1;background:none;border:0;resize:none;max-height:150px;padding:9px 6px;outline:0}
+.send{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#8b2ff0,var(--n));box-shadow:0 0 16px rgba(176,77,255,.6);font-size:18px}
+.note{text-align:center;color:var(--m);font-size:11px;margin-top:6px}
+.modal{position:fixed;inset:0;background:rgba(3,1,8,.85);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal .card{max-width:480px}
+.modal video{width:100%;border-radius:14px;background:#000;margin-bottom:12px;max-height:60vh}
+.two{display:flex;gap:10px}.two .btn.alt{background:var(--p2);box-shadow:none;border:1px solid var(--line)}
+@media(max-width:760px){
+ .app{grid-template-columns:1fr}
+ .side{position:fixed;inset:0 20% 0 0;z-index:15;transform:translateX(-102%);transition:transform .25s;padding-top:env(safe-area-inset-top)}
+ .side.open{transform:none;box-shadow:0 0 60px #000}
+ .top .menu{display:block}
+ .bub{max-width:92%}
+}
+.orb svg{width:100%;height:100%;display:block}
+.ic svg,.send svg,.opt svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
+.plus{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--n2);flex:none}
+.plus:hover{background:var(--p2)}
+.send{display:grid;place-items:center;flex:none}
+.back{position:fixed;inset:0;background:rgba(3,1,8,.6);z-index:18}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:19;max-width:520px;margin:0 auto;background:var(--p1);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:10px 14px max(18px,env(safe-area-inset-bottom));box-shadow:0 -10px 50px rgba(120,40,220,.35);animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(100%)}}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:0 auto 12px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:12px;border-radius:14px}
+.opt:hover{background:var(--p2)}
+.opt svg{width:44px;height:44px;padding:11px;border-radius:12px;background:var(--p2);color:var(--n2);box-shadow:0 0 14px rgba(176,77,255,.3)}
+.opt b{display:block;font-weight:600}.opt small{color:var(--m)}
+</style>
+</head>
+<body>
+
+<!-- API anahtarı ekranı -->
+<div id="keyScr" class="center hide">
+ <div class="card">
+  <div class="orb" style="margin:0 auto"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3b8ff"/><stop offset="1" stop-color="#8b2ff0"/></linearGradient></defs><circle cx="32" cy="32" r="29" fill="#120a24" stroke="url(#lg)" stroke-width="2.5"/><path d="M20 14L32 11L44 16M20 14L26 31L38 34L44 16M26 31L22 51M38 34L43 49" fill="none" stroke="#c77dff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><g fill="#fff"><circle cx="20" cy="14" r="3.2"/><circle cx="44" cy="16" r="2.6"/><circle cx="32" cy="11" r="1.8"/><circle cx="26" cy="31" r="2.4"/><circle cx="32" cy="32.5" r="2.4"/><circle cx="38" cy="34" r="2.4"/><circle cx="22" cy="51" r="2.8"/><circle cx="43" cy="49" r="2.4"/></g></svg></div>
+  <h1>ORION AI</h1>
+  <p>Başlamak için Gemini API anahtarını buraya yaz. Yazınca ORION AI aktif olur.</p>
+  <input id="keyIn" class="in" type="password" placeholder="Gemini API anahtarı (AIza...)" autocomplete="off">
+  <div id="keyErr" class="err"></div>
+  <button id="keyBtn" class="btn">Anahtarı kaydet ve etkinleştir</button>
+  <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Ücretsiz API anahtarı al</a>
+ </div>
+</div>
+
+<!-- Giriş / kayıt -->
+<div id="authScr" class="center hide">
+ <div class="card">
+  <div class="orb" style="margin:0 auto;--s:56px"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3b8ff"/><stop offset="1" stop-color="#8b2ff0"/></linearGradient></defs><circle cx="32" cy="32" r="29" fill="#120a24" stroke="url(#lg)" stroke-width="2.5"/><path d="M20 14L32 11L44 16M20 14L26 31L38 34L44 16M26 31L22 51M38 34L43 49" fill="none" stroke="#c77dff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><g fill="#fff"><circle cx="20" cy="14" r="3.2"/><circle cx="44" cy="16" r="2.6"/><circle cx="32" cy="11" r="1.8"/><circle cx="26" cy="31" r="2.4"/><circle cx="32" cy="32.5" r="2.4"/><circle cx="38" cy="34" r="2.4"/><circle cx="22" cy="51" r="2.8"/><circle cx="43" cy="49" r="2.4"/></g></svg></div>
+  <h1>ORION AI</h1>
+  <p>Devam etmek için hesabına giriş yap.</p>
+  <div class="tabs"><button id="tLogin" class="on">Giriş yap</button><button id="tReg">Kayıt ol</button></div>
+  <input id="aName" class="in hide" placeholder="Adın" autocomplete="name">
+  <input id="aMail" class="in" type="email" placeholder="E-posta" autocomplete="email">
+  <input id="aPass" class="in" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password">
+  <div id="aErr" class="err"></div>
+  <button id="aBtn" class="btn">Giriş yap</button>
+ </div>
+</div>
+
+<!-- Uygulama -->
+<div id="app" class="app hide">
+ <aside id="side" class="side">
+  <div class="brand"><div class="orb" style="--s:30px;animation:none"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3b8ff"/><stop offset="1" stop-color="#8b2ff0"/></linearGradient></defs><circle cx="32" cy="32" r="29" fill="#120a24" stroke="url(#lg)" stroke-width="2.5"/><path d="M20 14L32 11L44 16M20 14L26 31L38 34L44 16M26 31L22 51M38 34L43 49" fill="none" stroke="#c77dff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><g fill="#fff"><circle cx="20" cy="14" r="3.2"/><circle cx="44" cy="16" r="2.6"/><circle cx="32" cy="11" r="1.8"/><circle cx="26" cy="31" r="2.4"/><circle cx="32" cy="32.5" r="2.4"/><circle cx="38" cy="34" r="2.4"/><circle cx="22" cy="51" r="2.8"/><circle cx="43" cy="49" r="2.4"/></g></svg></div>ORION AI</div>
+  <button id="newBtn" class="newc">+ Yeni sohbet</button>
+  <input id="srch" class="in search" placeholder="Soru geçmişinde ara">
+  <div id="hist" class="hist"></div>
+  <div class="user">
+   <div id="avt" class="av"></div>
+   <div class="nm"><b id="uName"></b><small id="uMail"></small></div>
+   <button id="keyChg" class="ic" title="API anahtarını değiştir" aria-label="API anahtarını değiştir"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/></svg></button>
+   <button id="out" class="ic" title="Çıkış yap" aria-label="Çıkış yap"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg></button>
+  </div>
+ </aside>
+ <section class="main">
+  <div class="top">
+   <button id="menu" class="ic menu" aria-label="Menü"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+   <b id="ttl">Yeni sohbet</b>
+   <select id="mdl" aria-label="Model">
+    <option value="gemini-2.5-flash">ORION 2.5 Flash</option>
+    <option value="gemini-2.5-pro">ORION 2.5 Pro</option>
+    <option value="gemini-2.0-flash">ORION 2.0 Flash</option>
+   </select>
+  </div>
+  <div id="msgs" class="msgs"><div id="wrap" class="wrap"></div></div>
+  <div class="comp">
+   <div class="box">
+    <div id="prev" class="prev hide"></div>
+    <div class="row">
+     <button id="plus" class="plus" title="Ekle" aria-label="Fotoğraf ekle"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+     <textarea id="inp" rows="1" placeholder="ORION'a bir şey sor..."></textarea>
+     <button id="send" class="send" aria-label="Gönder"><svg viewBox="0 0 24 24" style="stroke:#fff"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </div>
+   </div>
+   <div class="note">ORION AI hata yapabilir. Önemli bilgileri kontrol et.</div>
+  </div>
+ </section>
+</div>
+
+<div id="back" class="back hide"></div>
+<div id="sheet" class="sheet hide">
+ <div class="grab"></div>
+ <button class="opt" id="oCam"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><b>Kamera</b><small>Fotoğraf çek ve gönder</small></span></button>
+ <button class="opt" id="oImg"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg><span><b>Galeri</b><small>Telefondan fotoğraf yükle</small></span></button>
+</div>
+<!-- Kamera -->
+<div id="camM" class="modal hide">
+ <div class="card">
+  <video id="vid" autoplay playsinline muted></video>
+  <div class="two"><button id="snap" class="btn">Fotoğraf çek</button><button id="camX" class="btn alt">Kapat</button></div>
+ </div>
+</div>
+<input id="file" type="file" accept="image/*" multiple class="hide">
+<input id="fileCam" type="file" accept="image/*" capture="environment" class="hide">
+
+<script>
+const $=id=>document.getElementById(id);
+/* === AYAR: Herkesin kullanabilmesi için API anahtarını tırnakların içine yaz. Boş bırakırsan her kullanıcıdan bir kez istenir. === */
+const SITE_KEY="";
+const LOGO='<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3b8ff"/><stop offset="1" stop-color="#8b2ff0"/></linearGradient></defs><circle cx="32" cy="32" r="29" fill="#120a24" stroke="url(#lg)" stroke-width="2.5"/><path d="M20 14L32 11L44 16M20 14L26 31L38 34L44 16M26 31L22 51M38 34L43 49" fill="none" stroke="#c77dff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><g fill="#fff"><circle cx="20" cy="14" r="3.2"/><circle cx="44" cy="16" r="2.6"/><circle cx="32" cy="11" r="1.8"/><circle cx="26" cy="31" r="2.4"/><circle cx="32" cy="32.5" r="2.4"/><circle cx="38" cy="34" r="2.4"/><circle cx="22" cy="51" r="2.8"/><circle cx="43" cy="49" r="2.4"/></g></svg>';
+const SEND_I='<svg viewBox="0 0 24 24" style="stroke:#fff"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',STOP_I='<svg viewBox="0 0 24 24" style="fill:#fff;stroke:#fff"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>';
+document.head.insertAdjacentHTML('beforeend','<link rel="icon" href="data:image/svg+xml,'+encodeURIComponent(LOGO)+'">');
+const SYS="Sen ORION AI'sın: zeki, samimi ve yardımsever bir yapay zeka asistanısın. Kullanıcı hangi dilde yazarsa o dilde cevap ver (varsayılan Türkçe). Fotoğrafları dikkatle analiz et. Kod için kod bloğu kullan.";
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}},del(k){try{localStorage.removeItem(k)}catch{}}};
+let key=SITE_KEY||LS.get('orion_key',''),me=LS.get('orion_session',null),chats=[],curId=null,pending=[],busy=false,ac=null,stream=null,regMode=false;
+
+/* ---------- Ekran yönetimi ---------- */
+function show(s){['keyScr','authScr','app'].forEach(i=>$(i).classList.toggle('hide',i!==s))}
+function route(){
+  if(!key){show('keyScr');$('keyIn').focus();return}
+  const users=LS.get('orion_users',{});
+  if(!me||!users[me]){show('authScr');return}
+  startApp(users[me]);
+}
+/* ---------- API anahtarı ---------- */
+$('keyBtn').onclick=async()=>{
+  const k=$('keyIn').value.trim(); $('keyErr').textContent='';
+  if(k.length<20){$('keyErr').textContent='Geçerli bir API anahtarı yaz.';return}
+  $('keyBtn').textContent='Kontrol ediliyor...';
+  let r=null;
+  try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1&key='+encodeURIComponent(k))}catch{}
+  if(r&&!r.ok){
+    const e=await r.json().catch(()=>({}));
+    $('keyErr').textContent='Google anahtarı reddetti: '+(e.error?.message||('HTTP '+r.status));
+  }else{
+    // r null ise ağ engeli var (ör. önizleme/yerel kısıtlama): anahtar yine de kaydedilir
+    key=k;LS.set('orion_key',k);$('keyIn').value='';route();
+  }
+  $('keyBtn').textContent='Anahtarı kaydet ve etkinleştir';
+};
+$('keyIn').onkeydown=e=>{if(e.key==='Enter')$('keyBtn').click()};
+$('keyChg').onclick=()=>{LS.del('orion_key');key='';route()};
+/* ---------- Hesap ---------- */
+async function hash(p,salt){
+  const b=new TextEncoder().encode(salt+p);
+  if(crypto.subtle){const h=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+  return btoa(salt+p);
+}
+function setMode(r){regMode=r;$('tReg').classList.toggle('on',r);$('tLogin').classList.toggle('on',!r);$('aName').classList.toggle('hide',!r);$('aBtn').textContent=r?'Hesap oluştur':'Giriş yap';$('aErr').textContent='';$('aPass').autocomplete=r?'new-password':'current-password'}
+$('tLogin').onclick=()=>setMode(false);$('tReg').onclick=()=>setMode(true);
+$('aBtn').onclick=async()=>{
+  const mail=$('aMail').value.trim().toLowerCase(),pw=$('aPass').value,name=$('aName').value.trim(),users=LS.get('orion_users',{});
+  const E=t=>$('aErr').textContent=t;
+  if(!/^\S+@\S+\.\S+$/.test(mail))return E('Geçerli bir e-posta yaz.');
+  if(pw.length<6)return E('Şifre en az 6 karakter olmalı.');
+  if(regMode){
+    if(!name)return E('Adını yaz.');
+    if(users[mail])return E('Bu e-posta ile zaten bir hesap var. Giriş yap.');
+    const salt=Math.random().toString(36).slice(2);
+    users[mail]={name,mail,salt,hash:await hash(pw,salt)};LS.set('orion_users',users);
+  }else{
+    const u=users[mail];
+    if(!u||u.hash!==await hash(pw,u.salt))return E('E-posta veya şifre yanlış.');
+  }
+  me=mail;LS.set('orion_session',mail);$('aPass').value='';E('');route();
+};
+$('aPass').onkeydown=e=>{if(e.key==='Enter')$('aBtn').click()};
+$('out').onclick=()=>{LS.del('orion_session');me=null;route()};
+/* ---------- Uygulama ---------- */
+function startApp(u){
+  show('app');$('keyChg').classList.toggle('hide',!!SITE_KEY);$('uName').textContent=u.name;$('uMail').textContent=u.mail;$('avt').textContent=u.name[0].toUpperCase();
+  chats=LS.get('orion_chats_'+me,[]);curId=null;$('mdl').value=LS.get('orion_model','gemini-2.5-flash');
+  renderHist();render();
+}
+const cur=()=>chats.find(c=>c.id===curId);
+function saveChats(){
+  const k='orion_chats_'+me;
+  while(!LS.set(k,chats)){ // kota dolarsa en eski görselleri temizle
+    const c=chats.find(c=>c.msgs.some(m=>m.imgs&&m.imgs.length));
+    if(!c)break;c.msgs.forEach(m=>{if(m.imgs&&m.imgs.length){m.imgs=[];m.note='(görsel kaldırıldı)'}});
+  }
+}
+function newChat(){curId=null;pending=[];renderPrev();renderHist();render();$('side').classList.remove('open');$('inp').focus()}
+$('newBtn').onclick=newChat;
+$('menu').onclick=()=>$('side').classList.toggle('open');
+$('mdl').onchange=()=>LS.set('orion_model',$('mdl').value);
+$('srch').oninput=renderHist;
+function renderHist(){
+  const q=$('srch').value.toLowerCase(),h=$('hist');h.innerHTML='';
+  const list=chats.filter(c=>!q||c.title.toLowerCase().includes(q)||c.msgs.some(m=>(m.text||'').toLowerCase().includes(q)));
+  if(!list.length){h.innerHTML='<div class="empty-h">'+(q?'Sonuç yok.':'Henüz sohbet yok. İlk sorunu sor.')+'</div>';return}
+  list.sort((a,b)=>b.ts-a.ts).forEach(c=>{
+    const d=document.createElement('div');d.className='h'+(c.id===curId?' on':'');
+    d.innerHTML='<span></span><button aria-label="Sil" title="Sil">✕</button>';d.firstChild.textContent=c.title;
+    d.onclick=()=>{curId=c.id;renderHist();render();$('side').classList.remove('open')};
+    d.querySelector('button').onclick=e=>{e.stopPropagation();if(!confirm('Bu sohbet silinsin mi?'))return;chats=chats.filter(x=>x.id!==c.id);if(curId===c.id)curId=null;saveChats();renderHist();render()};
+    h.appendChild(d);
+  });
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function md(s){
+  const parts=esc(s).split(/```(?:\w*\n)?/);
+  return parts.map((p,i)=>i%2?'<pre><code>'+p.replace(/\n$/,'')+'</code></pre>':
+    p.replace(/`([^`\n]+)`/g,'<code>$1</code>').replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>')
+     .replace(/^#{1,4} (.+)$/gm,'<b>$1</b>').replace(/(^|\n)[-*] (.+)/g,'$1<ul><li>$2</li></ul>').replace(/<\/ul>\n?<ul>/g,'').replace(/\n/g,'<br>')).join('');
+}
+function bubble(m){
+  const d=document.createElement('div');d.className='msg '+m.role;
+  let h=m.role==='model'?'<div class="orb">'+LOGO+'</div>':'';
+  h+='<div class="bub'+(m.err?' err':'')+'">';
+  if(m.imgs&&m.imgs.length)h+='<div class="imgs">'+m.imgs.map(s=>'<img src="'+s+'" alt="Eklenen fotoğraf">').join('')+'</div>';
+  h+=(m.role==='model'?(m.text?md(m.text):'<span class="dots"></span>'):esc(m.text||'').replace(/\n/g,'<br>'))+'</div>';
+  d.innerHTML=h;return d;
+}
+function render(){
+  const c=cur(),w=$('wrap');w.innerHTML='';$('ttl').textContent=c?c.title:'Yeni sohbet';
+  if(!c||!c.msgs.length){
+    w.innerHTML='<div class="welcome"><div class="orb" style="margin:0 auto">'+LOGO+'</div><h2>Merhaba '+esc(($('uName').textContent||'').split(' ')[0])+', ben ORION</h2><p>Soru sor, fotoğraf yükle ya da kamerayla çek.</p><div class="chips"></div></div>';
+    ['Bana motive edici bir sabah rutini öner','Python ile basit bir hesap makinesi yaz','Kuantum fiziğini basitçe anlat','Bir iş e-postası taslağı hazırla'].forEach(t=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{$('inp').value=t;send()};w.querySelector('.chips').appendChild(b)});
+    return;
+  }
+  c.msgs.forEach(m=>w.appendChild(bubble(m)));scrollDown();
+}
+function scrollDown(){const m=$('msgs');m.scrollTop=m.scrollHeight}
+/* ---------- Fotoğraf ---------- */
+function shrink(src){return new Promise(res=>{
+  const im=new Image();im.onload=()=>{const s=Math.min(1,1024/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.8))};im.src=src})}
+async function addFiles(fl){for(const f of fl){if(pending.length>=4)break;pending.push(await shrink(URL.createObjectURL(f)))}renderPrev()}
+function renderPrev(){
+  const p=$('prev');p.classList.toggle('hide',!pending.length);p.innerHTML='';
+  pending.forEach((s,i)=>{const d=document.createElement('div');d.innerHTML='<img alt="Önizleme"><button aria-label="Kaldır">✕</button>';d.firstChild.src=s;d.lastChild.onclick=()=>{pending.splice(i,1);renderPrev()};p.appendChild(d)});
+}
+const sheet=v=>{$('sheet').classList.toggle('hide',!v);$('back').classList.toggle('hide',!v)};
+$('plus').onclick=()=>sheet($('sheet').classList.contains('hide'));
+$('back').onclick=()=>sheet(false);
+$('oImg').onclick=()=>{sheet(false);$('file').click()};
+$('oCam').onclick=()=>{sheet(false);openCam()};
+$('file').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+$('fileCam').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+async function openCam(){
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});$('vid').srcObject=stream;$('camM').classList.remove('hide')}
+  catch{$('fileCam').click()}
+}
+function closeCam(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('camM').classList.add('hide')}
+$('camX').onclick=closeCam;
+$('snap').onclick=async()=>{
+  const v=$('vid'),c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);
+  if(pending.length<4)pending.push(await shrink(c.toDataURL('image/jpeg',.9)));renderPrev();closeCam();
+};
+/* ---------- Gönderme ---------- */
+$('inp').oninput=e=>{e.target.style.height='auto';e.target.style.height=Math.min(150,e.target.scrollHeight)+'px'};
+$('inp').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&matchMedia('(hover:hover)').matches){e.preventDefault();send()}};
+$('send').onclick=()=>busy?(ac.stop=true,ac.rd&&ac.rd.cancel().catch(()=>{})):send();
+async function send(){
+  const t=$('inp').value.trim();if((!t&&!pending.length)||busy)return;
+  let c=cur();if(!c){c={id:Date.now()+'',title:(t||'Fotoğraf analizi').slice(0,40),ts:Date.now(),msgs:[]};chats.push(c);curId=c.id}
+  c.msgs.push({role:'user',text:t,imgs:pending});pending=[];renderPrev();
+  $('inp').value='';$('inp').style.height='auto';
+  const m={role:'model',text:''};c.msgs.push(m);c.ts=Date.now();saveChats();renderHist();render();
+  const bub=$('wrap').lastChild.querySelector('.bub');
+  busy=true;$('send').innerHTML=STOP_I;ac={stop:false,rd:null};
+  const contents=c.msgs.slice(0,-1).filter(x=>x.role==='user'||(x.text&&!x.err)).map(x=>({role:x.role,parts:[...(x.imgs||[]).map(d=>({inlineData:{mimeType:'image/jpeg',data:d.split(',')[1]}})),{text:x.text||(x.imgs&&x.imgs.length?'Bu fotoğrafı incele.':' ')}]}));
+  try{
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+$('mdl').value+':streamGenerateContent?alt=sse&key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents})});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||('HTTP '+r.status))}
+    const feed=l=>{if(!l.startsWith('data:'))return;try{const p=JSON.parse(l.slice(5)).candidates?.[0]?.content?.parts;if(p){m.text+=p.map(x=>x.text||'').join('');bub.innerHTML=md(m.text);scrollDown()}}catch{}};
+    if(r.body&&r.body.getReader){
+      const rd=r.body.getReader(),dec=new TextDecoder();ac.rd=rd;let buf='';
+      for(;;){
+        const {done,value}=await rd.read();if(done)break;
+        buf+=dec.decode(value,{stream:true});const ls=buf.split('\n');buf=ls.pop();ls.forEach(feed);
+      }
+      if(buf)feed(buf);
+    }else{(await r.text()).split('\n').forEach(feed)}
+    if(!m.text&&ac.stop)m.text='Yanıt durduruldu.';
+    if(!m.text)throw new Error('Boş yanıt döndü (içerik filtrelenmiş olabilir).');
+  }catch(e){
+    if(e.name!=='AbortError'){if(/fetch|network/i.test(e.message))e.message='Google sunucusuna bağlanılamadı. Dosyayı Chrome/Safari gibi gerçek bir tarayıcıda aç (Claude içindeki önizlemede internet erişimi kapalıdır) ve bağlantını kontrol et.';m.text+=(m.text?'\n\n':'')+'Hata: '+e.message+(/API key|API_KEY/i.test(e.message)?' — 🔑 simgesinden anahtarını güncelle.':'');m.err=1}
+    else if(!m.text){m.text='Yanıt durduruldu.'}
+  }
+  busy=false;$('send').innerHTML=SEND_I;saveChats();render();
+}
+route();
+</script>
+</body>
+</html>
